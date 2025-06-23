@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Stats - {{ url.short_code }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="card-title">📊 Link Statistics</h2>
+                
+                <div class="stats-grid">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="stat-item">
+                                <h4>Short URL</h4>
+                                <p class="text-primary">{{ request.host_url }}{{ url.short_code }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stat-item">
+                                <h4>Total Clicks</h4>
+                                <p class="text-success fs-3">{{ url.clicks }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="stat-item">
+                                <h4>Original URL</h4>
+                                <p class="text-muted text-break">{{ url.original_url }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="stat-item">
+                                <h4>Created</h4>
+                                <p>{{ url.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stat-item">
+                                <h4>Actions</h4>
+                                <a href="{{ url.original_url }}" class="btn btn-primary btn-sm" target="_blank">Visit Original</a>
+                                <a href="{{ url_for('index') }}" class="btn btn-secondary btn-sm">Create New</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Stats</title>
+</head>
+<body>
+    <h1>Stats for {{ url.short_code }}</h1>
+    <p><strong>Original URL:</strong> {{ url.original_url }}</p>
+    <p><strong>Clicks:</strong> {{ url.clicks }}</p>
+    <p><strong>Created At:</strong> {{ url.created_at.strftime('%d %B %Y, %H:%M') }}</p>
+    <a href="/">Shorten another URL</a>
+</body>
+</html>

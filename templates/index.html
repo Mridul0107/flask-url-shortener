@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <h1 class="card-title text-center mb-4">Shorten Your URLs</h1>
+                <p class="text-center text-muted">Create short, shareable links in seconds</p>
+                
+                <form method="POST" class="mb-4">
+                    <div class="mb-3">
+                        <label for="url" class="form-label">Enter your long URL:</label>
+                        <input type="url" class="form-control form-control-lg" id="url" name="url" 
+                               placeholder="https://example.com/very/long/url" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="custom_code" class="form-label">Custom alias (optional):</label>
+                        <input type="text" class="form-control" id="custom_code" name="custom_code" 
+                               placeholder="my-custom-link" maxlength="20">
+                        <div class="form-text">3-20 characters, letters, numbers, hyphens, and underscores only</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100">Shorten URL</button>
+                </form>
+                
+                {% if short_url %}
+                <div class="result-section">
+                    <hr>
+                    <h3>Your shortened URL:</h3>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" value="{{ short_url }}" id="shortUrl" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard()">Copy</button>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Original URL:</strong><br>
+                            <small class="text-muted">{{ original_url }}</small></p>
+                            <a href="{{ url_for('stats', short_code=short_url.split('/')[-1]) }}" class="btn btn-info btn-sm">View Stats</a>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <p><strong>QR Code:</strong></p>
+                            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" class="qr-code">
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="features mt-5">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <h5>📊 Analytics</h5>
+                    <p>Track clicks and monitor performance</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>📱 QR Codes</h5>
+                    <p>Generate QR codes for easy sharing</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>🎯 Custom Links</h5>
+                    <p>Create memorable custom aliases</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard() {
+    const urlInput = document.getElementById('shortUrl');
+    urlInput.select();
+    document.execCommand('copy');
+    
+    const button = event.target;
+    const originalText = button.textContent;
+    button.textContent = 'Copied!';
+    button.classList.remove('btn-outline-secondary');
+    button.classList.add('btn-success');
+    
+    setTimeout(() => {
+        button.textContent = originalText;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-secondary');
+    }, 2000);
+}
+</script>
+{% endblock %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Shortener</title>
+</head>
+<body>
+    <h1>URL Shortener</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+                <li><strong>{{ category.title() }}:</strong> {{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <input type="text" name="url" placeholder="Enter your URL" required>
+        <input type="text" name="custom_code" placeholder="Custom code (optional)">
+        <button type="submit">Shorten</button>
+    </form>
+
+    {% if short_url %}
+        <h2>Shortened URL</h2>
+        <p><a href="{{ short_url }}">{{ short_url }}</a></p>
+        <p>Original: {{ original_url }}</p>
+        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+        <p><a href="/stats/{{ short_url.split('/')[-1] }}">View stats</a
+              {% endif %}

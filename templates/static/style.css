@@ -1,0 +1,57 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+}
+
+.btn-lg {
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.form-control {
+    border-radius: 8px;
+}
+
+.result-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.qr-code {
+    max-width: 150px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px;
+    background: white;
+}
+
+.features {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.stat-item {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.stat-item h4 {
+    color: #495057;
+    font-size: 1rem;
+    margin-bottom: 8px;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
