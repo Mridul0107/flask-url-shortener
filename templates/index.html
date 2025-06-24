@@ -5,8 +5,8 @@
     <div class="col-md-8">
         <div class="card shadow">
             <div class="card-body">
-                <h1 class="card-title text-center mb-4">Shorten Your URLs</h1>
-                <p class="text-center text-muted">Create short, shareable links in seconds</p>
+                <h1 class="card-title text-center mb-4">🚀 Advanced URL Shortener</h1>
+                <p class="text-center text-muted">Create smart, secure, and trackable short links</p>
                 
                 <form method="POST" class="mb-4">
                     <div class="mb-3">
@@ -15,30 +15,93 @@
                                placeholder="https://example.com/very/long/url" required>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="custom_code" class="form-label">Custom alias (optional):</label>
-                        <input type="text" class="form-control" id="custom_code" name="custom_code" 
-                               placeholder="my-custom-link" maxlength="20">
-                        <div class="form-text">3-20 characters, letters, numbers, hyphens, and underscores only</div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="custom_code" class="form-label">Custom alias (optional):</label>
+                                <input type="text" class="form-control" id="custom_code" name="custom_code" 
+                                       placeholder="my-custom-link" maxlength="20">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description (optional):</label>
+                                <input type="text" class="form-control" id="description" name="description" 
+                                       placeholder="What is this link for?" maxlength="255">
+                            </div>
+                        </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary btn-lg w-100">Shorten URL</button>
+                    <!-- Advanced Options -->
+                    <div class="card bg-light mb-3">
+                        <div class="card-header">
+                            <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#advancedOptions">
+                                🔧 Advanced Options
+                            </button>
+                        </div>
+                        <div class="collapse" id="advancedOptions">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="expires_in" class="form-label">Expires in (days):</label>
+                                            <input type="number" class="form-control" id="expires_in" 
+                                                   name="expires_in" placeholder="30" min="1" max="365">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="click_limit" class="form-label">Click limit:</label>
+                                            <input type="number" class="form-control" id="click_limit" 
+                                                   name="click_limit" placeholder="100" min="1">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label">Password protect:</label>
+                                            <input type="password" class="form-control" id="password" 
+                                                   name="password" placeholder="Optional password">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100">Create Smart Link</button>
                 </form>
                 
                 {% if short_url %}
                 <div class="result-section">
                     <hr>
-                    <h3>Your shortened URL:</h3>
+                    <h3>✅ Your smart link is ready!</h3>
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" value="{{ short_url }}" id="shortUrl" readonly>
                         <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard()">Copy</button>
+                        <a href="{{ url_for('preview_url', short_code=short_url.split('/')[-1]) }}" 
+                           class="btn btn-info" target="_blank">Preview</a>
                     </div>
                     
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Original URL:</strong><br>
                             <small class="text-muted">{{ original_url }}</small></p>
-                            <a href="{{ url_for('stats', short_code=short_url.split('/')[-1]) }}" class="btn btn-info btn-sm">View Stats</a>
+                            
+                            {% if expires_at %}
+                            <p><strong>Expires:</strong> <span class="text-warning">{{ expires_at.strftime('%B %d, %Y') }}</span></p>
+                            {% endif %}
+                            
+                            {% if has_password %}
+                            <p><strong>Protection:</strong> <span class="text-info">🔒 Password protected</span></p>
+                            {% endif %}
+                            
+                            {% if click_limit %}
+                            <p><strong>Click Limit:</strong> <span class="text-warning">{{ click_limit }} clicks</span></p>
+                            {% endif %}
+                            
+                            <a href="{{ url_for('stats', short_code=short_url.split('/')[-1]) }}" 
+                               class="btn btn-info btn-sm">📊 View Analytics</a>
                         </div>
                         <div class="col-md-6 text-center">
                             <p><strong>QR Code:</strong></p>
@@ -50,19 +113,45 @@
             </div>
         </div>
         
-        <div class="features mt-5">
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5>📊 Bulk Shortening</h5>
+                        <p>Shorten multiple URLs at once</p>
+                        <a href="{{ url_for('bulk_shorten') }}" class="btn btn-outline-primary">Try Bulk Tool</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5>🔧 Admin Dashboard</h5>
+                        <p>View all links and analytics</p>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success">View Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="features mt-4">
             <div class="row text-center">
-                <div class="col-md-4">
-                    <h5>📊 Analytics</h5>
-                    <p>Track clicks and monitor performance</p>
+                <div class="col-md-3">
+                    <h6>⏰ Expiration</h6>
+                    <small>Set automatic link expiry</small>
                 </div>
-                <div class="col-md-4">
-                    <h5>📱 QR Codes</h5>
-                    <p>Generate QR codes for easy sharing</p>
+                <div class="col-md-3">
+                    <h6>🔒 Password</h6>
+                    <small>Protect sensitive links</small>
                 </div>
-                <div class="col-md-4">
-                    <h5>🎯 Custom Links</h5>
-                    <p>Create memorable custom aliases</p>
+                <div class="col-md-3">
+                    <h6>📈 Analytics</h6>
+                    <small>Detailed click tracking</small>
+                </div>
+                <div class="col-md-3">
+                    <h6>🎯 Click Limits</h6>
+                    <small>Control link usage</small>
                 </div>
             </div>
         </div>
@@ -89,35 +178,3 @@ function copyToClipboard() {
 }
 </script>
 {% endblock %}
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>URL Shortener</title>
-</head>
-<body>
-    <h1>URL Shortener</h1>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul>
-            {% for category, message in messages %}
-                <li><strong>{{ category.title() }}:</strong> {{ message }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-
-    <form method="POST">
-        <input type="text" name="url" placeholder="Enter your URL" required>
-        <input type="text" name="custom_code" placeholder="Custom code (optional)">
-        <button type="submit">Shorten</button>
-    </form>
-
-    {% if short_url %}
-        <h2>Shortened URL</h2>
-        <p><a href="{{ short_url }}">{{ short_url }}</a></p>
-        <p>Original: {{ original_url }}</p>
-        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
-        <p><a href="/stats/{{ short_url.split('/')[-1] }}">View stats</a
-              {% endif %}
