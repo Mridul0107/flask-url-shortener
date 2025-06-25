@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Bulk URL Shortener{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-lg-10" data-aos="fade-up">
+        <div class="card shadow border-0">
+            <div class="card-body p-5">
+                <h2 class="mb-3">📊 Bulk URL Shortener</h2>
+                <p class="text-muted">Shorten multiple URLs at once. Paste one per line (up to 50).</p>
+                
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="urls" class="form-label fw-semibold">URLs to shorten:</label>
+                        <textarea class="form-control shadow-sm" id="urls" name="urls" rows="10" 
+                                  placeholder="https://example.com/one&#10;https://example.com/two" required></textarea>
+                        <div class="form-text">Separate each URL by line</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        🔗 Shorten All URLs
+                    </button>
+                </form>
+
+                {% if results %}
+                <hr class="my-5">
+                <h4 class="mb-4">✅ Results</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Original URL</th>
+                                <th>Shortened</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr>
+                                <td class="text-break" style="max-width: 300px;">{{ result.original }}</td>
+                                <td>
+                                    {% if result.status == 'success' and result.shortened %}
+                                        <input type="text" class="form-control form-control-sm text-primary" 
+                                               value="{{ result.shortened }}" readonly onclick="this.select()">
+                                    {% else %}
+                                        <span class="text-danger">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if result.status == 'success' %}
+                                        <span class="badge bg-success">Success</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Failed</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if result.status == 'success' and result.shortened %}
+                                        <a href="{{ result.shortened }}" target="_blank" class="btn btn-outline-primary btn-sm">Visit</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-end mt-4">
+                    <button class="btn btn-outline-dark" onclick="downloadResults()">
+                        📥 Download CSV
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="bulk-data" type="application/json">
+  {{ results | tojson if results else "[]" }}
+</script>
+
+<script>
+  const results = JSON.parse(document.getElementById('bulk-data').textContent || "[]");
+
+  function downloadResults() {
+      let csv = 'Original URL,Shortened URL,Status\n';
+      results.forEach(result => {
+          csv += `"${result.original}","${result.shortened || ''}","${result.status}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'shortened_urls.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+  }
+</script>
+{% endblock %}

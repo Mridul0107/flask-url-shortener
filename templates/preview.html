@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Link Preview - {{ url.short_code }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2>🔍 Link Preview</h2>
+                <p class="text-muted">Preview this link before visiting</p>
+                
+                <div class="preview-card">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4>{{ preview_data.title }}</h4>
+                            <p class="text-muted">{{ preview_data.description }}</p>
+                            <p><strong>Domain:</strong> <span class="text-primary">{{ preview_data.domain }}</span></p>
+                            <p><strong>Short URL:</strong> {{ request.host_url }}{{ url.short_code }}</p>
+                            
+                            {% if url.description %}
+                            <p><strong>Description:</strong> {{ url.description }}</p>
+                            {% endif %}
+                            
+                            <div class="mt-3">
+                                <a href="{{ url_for('redirect_url', short_code=url.short_code) }}" 
+                                   class="btn btn-primary">🚀 Visit Link</a>
+                                <a href="{{ url_for('stats', short_code=url.short_code) }}" 
+                                   class="btn btn-outline-info">📊 View Stats</a>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="safety-info">
+                                <h6>🛡️ Safety Check</h6>
+                                <span class="badge bg-success">Link appears safe</span>
+                                <p class="small text-muted mt-2">
+                                    Created: {{ url.created_at.strftime('%b %d, %Y') }}<br>
+                                    Clicks: {{ url.clicks }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
