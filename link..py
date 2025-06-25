@@ -33,4 +33,3 @@ def export_analytics(short_code):
         mimetype='text/csv',
         headers={'Content-Disposition': f'attachment; filename={short_code}_analytics.csv'}
     )
-
