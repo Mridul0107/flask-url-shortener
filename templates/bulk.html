@@ -10,6 +10,10 @@
                 <h2 class="mb-3">📊 Bulk URL Shortener</h2>
                 <p class="text-muted">Shorten multiple URLs at once. Paste one per line (up to 50).</p>
                 
+<<<<<<< HEAD
+=======
+                <!-- Bulk URL Form -->
+>>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
                 <form method="POST">
                     <div class="mb-4">
                         <label for="urls" class="form-label fw-semibold">URLs to shorten:</label>
@@ -22,6 +26,10 @@
                     </button>
                 </form>
 
+<<<<<<< HEAD
+=======
+                <!-- Results -->
+>>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
                 {% if results %}
                 <hr class="my-5">
                 <h4 class="mb-4">✅ Results</h4>
@@ -29,10 +37,17 @@
                     <table class="table table-hover table-bordered align-middle">
                         <thead class="table-light">
                             <tr>
+<<<<<<< HEAD
                                 <th>Original URL</th>
                                 <th>Shortened</th>
                                 <th>Status</th>
                                 <th>Action</th>
+=======
+                                <th scope="col">Original URL</th>
+                                <th scope="col">Shortened</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Action</th>
+>>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
                             </tr>
                         </thead>
                         <tbody>
@@ -40,7 +55,11 @@
                             <tr>
                                 <td class="text-break" style="max-width: 300px;">{{ result.original }}</td>
                                 <td>
+<<<<<<< HEAD
                                     {% if result.status == 'success' and result.shortened %}
+=======
+                                    {% if result.status == 'success' %}
+>>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
                                         <input type="text" class="form-control form-control-sm text-primary" 
                                                value="{{ result.shortened }}" readonly onclick="this.select()">
                                     {% else %}
@@ -55,8 +74,15 @@
                                     {% endif %}
                                 </td>
                                 <td>
+<<<<<<< HEAD
                                     {% if result.status == 'success' and result.shortened %}
                                         <a href="{{ result.shortened }}" target="_blank" class="btn btn-outline-primary btn-sm">Visit</a>
+=======
+                                    {% if result.status == 'success' %}
+                                        <a href="{{ result.shortened }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                            Visit
+                                        </a>
+>>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
                                     {% endif %}
                                 </td>
                             </tr>
@@ -65,6 +91,10 @@
                     </table>
                 </div>
 
+<<<<<<< HEAD
+=======
+                <!-- Download Button -->
+>>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
                 <div class="text-end mt-4">
                     <button class="btn btn-outline-dark" onclick="downloadResults()">
                         📥 Download CSV
@@ -76,6 +106,7 @@
     </div>
 </div>
 
+<<<<<<< HEAD
 <script id="bulk-data" type="application/json">
   {{ results | tojson if results else "[]" }}
 </script>
@@ -101,3 +132,36 @@
   }
 </script>
 {% endblock %}
+=======
+<!-- CSV Download Script -->
+<<script>
+const results = [
+    {% for result in results %}
+    {
+        original: "{{ result.original | escape }}",
+        shortened: "{{ result.shortened | default('') | escape }}",
+        status: "{{ result.status }}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+function downloadResults() {
+    let csv = 'Original URL,Shortened URL,Status\n';
+
+    results.forEach(result => {
+        csv += `"${result.original}","${result.shortened}","${result.status}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'shortened_urls.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+</script>
+ 
+>>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7

@@ -32,4 +32,9 @@ def export_analytics(short_code):
         output.getvalue(),
         mimetype='text/csv',
         headers={'Content-Disposition': f'attachment; filename={short_code}_analytics.csv'}
+<<<<<<< HEAD
     )
+=======
+    )
+
+>>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
