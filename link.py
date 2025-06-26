@@ -1,6 +1,6 @@
 import csv
 from io import StringIO
-from flask import Response, abort
+from flask import Flask, Response, abort, request, jsonify
 from url_shortener.models import URL, ClickLog  # adjust this import to match your structure
 from url_shortener.app import app  # Adjust to match your actual app module path
 
@@ -9,27 +9,65 @@ def export_analytics(short_code):
     url = URL.query.filter_by(short_code=short_code).first()
     if not url:
         abort(404)
-
-    # Fetch click logs
-    clicks = ClickLog.query.filter_by(url_id=url.id).order_by(ClickLog.clicked_at.desc()).all()
-
-    # Create CSV in-memory
+    
+    # Get all click logs for this URL
+    clicks = ClickLog.query.filter_by(url_id=url.id).all()
+    
+    # Create CSV data
     output = StringIO()
     writer = csv.writer(output)
-    writer.writerow(['Date', 'Time', 'IP Address', 'User Agent', 'Referrer'])
-
+    
+    # Write header
+    writer.writerow(['Timestamp', 'IP Address', 'User Agent', 'Referrer'])
+    
+    # Write click data
     for click in clicks:
         writer.writerow([
-            click.clicked_at.strftime('%Y-%m-%d'),
-            click.clicked_at.strftime('%H:%M:%S'),
-            click.ip_address or 'Unknown',
-            click.user_agent or 'Unknown',
+            click.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            click.ip_address,
+            click.user_agent,
             click.referrer or 'Direct'
         ])
-
-    output.seek(0)
-    return Response(
-        output.getvalue(),
+    
+    # Create response
+    csv_data = output.getvalue()
+    output.close()
+    
+    response = Response(
+        csv_data,
         mimetype='text/csv',
-        headers={'Content-Disposition': f'attachment; filename={short_code}_analytics.csv'}
+        headers={
+            'Content-Disposition': f'attachment; filename=analytics_{short_code}.csv'
+        }
     )
+    
+    return response
+
+# Alternative JSON export endpoint
+@app.route('/export/<short_code>/json')
+def export_analytics_json(short_code):
+    url = URL.query.filter_by(short_code=short_code).first()
+    if not url:
+        abort(404)
+    
+    clicks = ClickLog.query.filter_by(url_id=url.id).all()
+    
+    analytics_data = {
+        'short_code': short_code,
+        'original_url': url.original_url,
+        'total_clicks': len(clicks),
+        'clicks': [
+            {
+                'timestamp': click.timestamp.isoformat(),
+                'ip_address': click.ip_address,
+                'user_agent': click.user_agent,
+                'referrer': click.referrer
+            }
+            for click in clicks
+        ]
+    }
+    
+    return jsonify(analytics_data)
+
+if __name__ == '__main__':
+    app.run(debug=True)

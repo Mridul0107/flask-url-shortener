@@ -1,737 +1,824 @@
-{% extends "base.html" %}
-
-{% block title %}Advanced URL Shortener{% endblock %}
-
-{% block content %}
-<style>
-    body {
-        background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe) !important;
-        background-size: 400% 400% !important;
-        animation: gradientShift 15s ease infinite !important;
-        min-height: 100vh !important;
-        position: relative !important;
-        overflow-x: hidden !important;
-    }
-
-    body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-                    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
-        pointer-events: none;
-        z-index: 1;
-    }
-
-    .floating-shapes {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 1;
-    }
-
-    .shape {
-        position: absolute;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        animation: float 20s infinite linear;
-    }
-
-    .shape:nth-child(1) {
-        width: 80px;
-        height: 80px;
-        left: 10%;
-        animation-delay: 0s;
-    }
-
-    .shape:nth-child(2) {
-        width: 120px;
-        height: 120px;
-        left: 70%;
-        animation-delay: 5s;
-    }
-
-    .shape:nth-child(3) {
-        width: 60px;
-        height: 60px;
-        left: 30%;
-        animation-delay: 10s;
-    }
-
-    .shape:nth-child(4) {
-        width: 100px;
-        height: 100px;
-        left: 80%;
-        animation-delay: 15s;
-    }
-
-    @keyframes gradientShift {
-        0% {
-            background-position: 0% 50%;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced URL Shortener</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        50% {
-            background-position: 100% 50%;
-        }
-        100% {
-            background-position: 0% 50%;
-        }
-    }
 
-    @keyframes float {
-        0% {
-            transform: translateY(100vh) rotate(0deg);
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 2rem;
+        }
+
+        .section-1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .section-2 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .section-3 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        /* Animation Classes */
+        .fade-in {
             opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease-out;
         }
-        10% {
-            opacity: 1;
-        }
-        90% {
-            opacity: 1;
-        }
-        100% {
-            transform: translateY(-100px) rotate(360deg);
-            opacity: 0;
-        }
-    }
 
-    .navbar {
-        background: rgba(255, 255, 255, 0.1) !important;
-        backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        position: relative;
-        z-index: 1000;
-    }
-
-    .navbar-brand {
-        color: white !important;
-        font-weight: 700;
-        font-size: 1.5rem;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .container {
-        position: relative;
-        z-index: 10;
-    }
-
-    .card {
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        border-radius: 20px !important;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
-        overflow: hidden;
-        position: relative;
-    }
-
-    .card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
-        background-size: 300% 100%;
-        animation: shimmer 3s ease-in-out infinite;
-    }
-
-    @keyframes shimmer {
-        0%, 100% {
-            background-position: 0% 50%;
-        }
-        50% {
-            background-position: 100% 50%;
-        }
-    }
-
-    .card-body {
-        padding: 2.5rem !important;
-    }
-
-    .card-title {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-weight: 800;
-        margin-bottom: 0.5rem;
-    }
-
-    .form-control {
-        border: 2px solid rgba(102, 126, 234, 0.1) !important;
-        border-radius: 12px !important;
-        padding: 0.75rem 1rem !important;
-        background: rgba(255, 255, 255, 0.8) !important;
-        backdrop-filter: blur(10px);
-        transition: all 0.3s ease !important;
-    }
-
-    .form-control:focus {
-        border-color: #667eea !important;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
-        background: rgba(255, 255, 255, 0.95) !important;
-        transform: translateY(-2px);
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: #495057;
-        margin-bottom: 0.5rem;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 0.75rem 2rem !important;
-        font-weight: 600 !important;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease !important;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .btn-primary::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s;
-    }
-
-    .btn-primary:hover::before {
-        left: 100%;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-3px) !important;
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4) !important;
-    }
-
-    .btn-outline-secondary {
-        border: 2px solid #6c757d !important;
-        color: #6c757d !important;
-        border-radius: 12px !important;
-        transition: all 0.3s ease !important;
-    }
-
-    .btn-outline-secondary:hover {
-        background: #6c757d !important;
-        transform: translateY(-2px);
-    }
-
-    .btn-info {
-        background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%) !important;
-        border: none !important;
-        border-radius: 12px !important;
-        transition: all 0.3s ease !important;
-    }
-
-    .btn-info:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 8px 20px rgba(23, 162, 184, 0.4) !important;
-    }
-
-    .btn-outline-primary {
-        border: 2px solid #667eea !important;
-        color: #667eea !important;
-        border-radius: 12px !important;
-        transition: all 0.3s ease !important;
-    }
-
-    .btn-outline-primary:hover {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        border-color: #667eea !important;
-        transform: translateY(-2px);
-    }
-
-    .advanced-options {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-        border: 1px solid rgba(102, 126, 234, 0.1) !important;
-        border-radius: 15px !important;
-        transition: all 0.3s ease;
-    }
-
-    .advanced-options:hover {
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.1);
-    }
-
-    .advanced-options .card-header {
-        background: transparent !important;
-        border-bottom: 1px solid rgba(102, 126, 234, 0.1) !important;
-        padding: 1rem 1.5rem;
-    }
-
-    .advanced-options .btn-link {
-        color: #667eea !important;
-        text-decoration: none !important;
-        font-weight: 600;
-        font-size: 1.1rem;
-    }
-
-    .advanced-options .btn-link:hover {
-        color: #d0da0e !important;
-    }
-
-    .result-section {
-        background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(23, 162, 184, 0.1) 100%);
-        border: 1px solid rgba(40, 167, 69, 0.2);
-        border-radius: 15px;
-        padding: 2rem;
-        margin-top: 2rem;
-        animation: slideInUp 0.6s ease-out;
-    }
-
-    @keyframes slideInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
+        .fade-in.visible {
             opacity: 1;
             transform: translateY(0);
         }
-    }
 
-    .input-group .form-control {
-        border-right: none !important;
-    }
-
-    .input-group .btn {
-        border-left: none !important;
-    }
-
-    .qr-code {
-        max-width: 150px;
-        border: 3px solid #fff;
-        border-radius: 15px;
-        padding: 10px;
-        background: white;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-    }
-
-    .qr-code:hover {
-        transform: scale(1.05);
-    }
-
-    .features {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    }
-
-    .features h6 {
-        color: #667eea;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    .password-field {
-        position: absolute;
-    }
-
-    .password-toggle {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: #6c757d;
-        cursor: pointer;
-        padding: 0;
-        z-index: 10;
-    }
-
-    .password-toggle:hover {
-        color: #667eea;
-    }
-
-    /* Responsive improvements */
-    @media (max-width: 768px) {
-        .card-body {
-            padding: 1.5rem !important;
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-100px);
+            transition: all 0.8s ease-out;
         }
-        
-        .btn-primary {
-            padding: 0.75rem 1.5rem !important;
-            font-size: 0.9rem !important;
+
+        .slide-in-left.visible {
+            opacity: 1;
+            transform: translateX(0);
         }
-    }
 
-    /* Loading animation */
-    .loading {
-        opacity: 0.7;
-        pointer-events: none;
-    }
+        .slide-in-right {
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.8s ease-out;
+        }
 
-    .loading .btn-primary {
-        position: relative;
-    }
+        .slide-in-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
 
-    .loading .btn-primary::after {
-        content: '';
-        position: absolute;
-        width: 20px;
-        height: 20px;
-        margin: auto;
-        border: 2px solid transparent;
-        border-top-color: #ffffff;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
+        .scale-in {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.8s ease-out;
+        }
 
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-</style>
+        .scale-in.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
 
-<div class="floating-shapes">
-    <div class="shape"></div>
-    <div class="shape"></div>
-    <div class="shape"></div>
-    <div class="shape"></div>
-</div>
+        /* Content Containers */
+        .content {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card" data-aos="fade-up">
-            <div class="card-body">
-<<<<<<< HEAD
-                <h1 class="card-title text-center mb-2">🚀 Advanced URL Shortener</h1>
-                <p class="text-center text-muted mb-4">Create smart, secure, and trackable short links</p>
-=======
-                <h1 class="card-title text-center mb-4">🚀 Advanced URL Shortener</h1>
-                <p class="text-center text-muted">Create smart, secure, and trackable short links</p>
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                
-                <form method="POST" class="mb-4" id="shortenForm">
-                    <div class="mb-3">
-                        <label for="url" class="form-label">Enter your long URL:</label>
-                        <input type="url" class="form-control form-control-lg" id="url" name="url" 
-                               placeholder="https://example.com/very/long/url" required>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="custom_code" class="form-label">Custom alias (optional):</label>
-                                <input type="text" class="form-control" id="custom_code" name="custom_code" 
-                                       placeholder="my-custom-link" maxlength="20">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="description" class="form-label">Description (optional):</label>
-                                <input type="text" class="form-control" id="description" name="description" 
-                                       placeholder="What is this link for?" maxlength="255">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Advanced Options -->
-<<<<<<< HEAD
-                    <div class="card advanced-options mb-3">
-                        <div class="card-header">
-                            <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse" 
-                                    data-bs-target="#advancedOptions">
-                                <i class="fas fa-cog me-2"></i>Advanced Options
-=======
-                    <div class="card bg-light mb-3">
-                        <div class="card-header">
-                            <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse" 
-                                    data-bs-target="#advancedOptions">
-                                🔧 Advanced Options
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                            </button>
-                        </div>
-                        <div class="collapse" id="advancedOptions">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="mb-3">
-                                            <label for="expires_in" class="form-label">Expires in (days):</label>
-                                            <input type="number" class="form-control" id="expires_in" 
-                                                   name="expires_in" placeholder="30" min="1" max="365">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="mb-3">
-                                            <label for="click_limit" class="form-label">Click limit:</label>
-                                            <input type="number" class="form-control" id="click_limit" 
-                                                   name="click_limit" placeholder="100" min="1">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="mb-3">
-                                            <label for="password" class="form-label">Password protect:</label>
-<<<<<<< HEAD
-                                            <div class="password-field">
-                                                <input type="password" class="form-control" id="password" 
-                                                       name="password" placeholder="Enter password">
-                                                <button type="button" class="password-toggle" onclick="togglePassword()">
-                                                    <i class="fas fa-eye" id="passwordIcon"></i>
-                                                </button>
-                                            </div>
-                                            <div class="form-text">
-                                                <i class="fas fa-info-circle me-1"></i>
-                                                Optional password protection
-                                            </div>
-=======
-                                            <input type="password" class="form-control" id="password" 
-                                                   name="password" placeholder="Optional password">
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-<<<<<<< HEAD
-                    <button type="submit" class="btn btn-primary btn-lg w-100">
-                        <i class="fas fa-magic me-2"></i>Create Smart Link
-                    </button>
-=======
-                    <button type="submit" class="btn btn-primary btn-lg w-100">Create Smart Link</button>
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                </form>
-                
-                <!-- Result section -->
-                {% if short_url %}
-<<<<<<< HEAD
-                <div class="result-section" id="resultSection">
-                    <h3><i class="fas fa-check-circle text-success me-2"></i>Your smart link is ready!</h3>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" value="{{ request.host_url }}{{ short_url.short_code }}" id="shortUrl" readonly>
-                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard()">
-                            <i class="fas fa-copy me-1"></i>Copy
-                        </button>
-                        <a href="{{ url_for('preview', short_code=short_url.short_code) }}" class="btn btn-info">
-                            <i class="fas fa-eye me-1"></i>Preview
-                        </a>
-=======
-                <div class="result-section">
-                    <hr>
-                    <h3>✅ Your smart link is ready!</h3>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" value="{{ short_url }}" id="shortUrl" readonly>
-                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard()">Copy</button>
-                        <a href="{{ url_for('preview_url', short_code=short_url.split('/')[-1]) }}" 
-                           class="btn btn-info" target="_blank">Preview</a>
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Original URL:</strong><br>
-<<<<<<< HEAD
-                            <small class="text-muted">{{ short_url.original_url }}</small></p>
-                            
-                            {% if short_url.expires_at %}
-                            <p><strong>Expires:</strong> <span class="text-warning">{{ short_url.expires_at.strftime('%B %d, %Y') }}</span></p>
-                            {% endif %}
-                            
-                            {% if short_url.click_limit %}
-                            <p><strong>Click Limit:</strong> <span class="text-warning">{{ short_url.click_limit }} clicks</span></p>
-                            {% endif %}
-                            
-                            {% if short_url.password %}
-                            <p><strong>Password:</strong> <span class="text-info">Protected</span></p>
-                            {% endif %}
-                            
-                            <a href="{{ url_for('stats', short_code=short_url.short_code) }}" class="btn btn-info btn-sm">
-                                <i class="fas fa-chart-bar me-1"></i>View Analytics
-                            </a>
-=======
-                            <small class="text-muted">{{ original_url }}</small></p>
-                            
-                            {% if expires_at %}
-                            <p><strong>Expires:</strong> <span class="text-warning">{{ expires_at.strftime('%B %d, %Y') }}</span></p>
-                            {% endif %}
-                            
-                            {% if has_password %}
-                            <p><strong>Protection:</strong> <span class="text-info">🔒 Password protected</span></p>
-                            {% endif %}
-                            
-                            {% if click_limit %}
-                            <p><strong>Click Limit:</strong> <span class="text-warning">{{ click_limit }} clicks</span></p>
-                            {% endif %}
-                            
-                            <a href="{{ url_for('stats', short_code=short_url.split('/')[-1]) }}" 
-                               class="btn btn-info btn-sm">📊 View Analytics</a>
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                        </div>
-                        <div class="col-md-6 text-center">
-                            <p><strong>QR Code:</strong></p>
-                            {% if qr_code %}
-                            <img src="data:image/png;base64,{{ qr_code }}" class="qr-code" alt="QR Code">
-                            {% else %}
-                            <div class="qr-code-placeholder" style="width: 150px; height: 150px; background: #f8f9fa; border: 3px solid #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                                <i class="fas fa-qrcode fa-3x text-muted"></i>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        
-        <!-- Quick Actions -->
-        <div class="row mt-4">
-<<<<<<< HEAD
-            <div class="col-md-12">
-                <div class="card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="card-body text-center">
-                        <h5><i class="fas fa-layer-group me-2"></i>Bulk Shortening</h5>
-                        <p class="text-muted">Shorten multiple URLs at once</p>
-=======
-            <div class="col-md-6">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <h5>📊 Bulk Shortening</h5>
-                        <p>Shorten multiple URLs at once</p>
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                        <a href="{{ url_for('bulk_shorten') }}" class="btn btn-outline-primary">Try Bulk Tool</a>
-                    </div>
-                </div>
-            </div>
-<<<<<<< HEAD
-        </div>
-        
-        <div class="features mt-4" data-aos="fade-up" data-aos-delay="200">
-            <div class="row text-center">
-                <div class="col-md-3 mb-3">
-                    <i class="fas fa-clock fa-2x text-primary mb-2"></i>
-                    <h6>Expiration</h6>
-                    <small class="text-muted">Set automatic link expiry</small>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <i class="fas fa-chart-line fa-2x text-success mb-2"></i>
-                    <h6>Analytics</h6>
-                    <small class="text-muted">Detailed click tracking</small>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <i class="fas fa-bullseye fa-2x text-info mb-2"></i>
-                    <h6>Click Limits</h6>
-                    <small class="text-muted">Control link usage</small>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <i class="fas fa-lock fa-2x text-warning mb-2"></i>
-                    <h6>Password Protection</h6>
-                    <small class="text-muted">Secure your links</small>
-=======
-            <div class="col-md-6">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <h5>🔧 Admin Dashboard</h5>
-                        <p>View all links and analytics</p>
-                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success">View Dashboard</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="features mt-4">
-            <div class="row text-center">
-                <div class="col-md-3">
-                    <h6>⏰ Expiration</h6>
-                    <small>Set automatic link expiry</small>
-                </div>
-                <div class="col-md-3">
-                    <h6>🔒 Password</h6>
-                    <small>Protect sensitive links</small>
-                </div>
-                <div class="col-md-3">
-                    <h6>📈 Analytics</h6>
-                    <small>Detailed click tracking</small>
-                </div>
-                <div class="col-md-3">
-                    <h6>🎯 Click Limits</h6>
-                    <small>Control link usage</small>
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                </div>
-            </div>
-        </div>
+        /* Header Styles */
+        .header {
+            margin-bottom: 2rem;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .rocket {
+            font-size: 3rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        /* Form Styles */
+        .url-form {
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .url-input, .alias-input, .desc-input {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .password-input, .days-input, .clicks-input {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .url-input:focus, .alias-input:focus, .desc-input:focus, 
+        .password-input:focus, .days-input:focus, .clicks-input:focus {
+            outline: none;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+
+        /* Advanced Options Styles */
+        .advanced-options {
+            margin-bottom: 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .options-header {
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .options-header:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .advanced-options.open .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .options-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            opacity: 0;
+        }
+
+        .advanced-options.open .options-content {
+            max-height: 200px;
+            opacity: 1;
+            padding: 0 1rem 1rem 1rem;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .create-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .create-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        /* Bulk Section */
+        .bulk-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .bulk-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .bulk-title {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .bulk-desc {
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .bulk-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .bulk-btn:hover {
+            background: white;
+            color: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .feature-desc {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Navigation Dots */
+        .nav-dots {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: white;
+            transform: scale(1.3);
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            opacity: 0.7;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        /* Test Link Button */
+        .test-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.4);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 0.5rem;
+        }
+
+        .test-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.6);
+            transform: translateY(-1px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-dots {
+                display: none;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <div class="nav-dots">
+        <div class="dot active" data-section="0"></div>
+        <div class="dot" data-section="1"></div>
+        <div class="dot" data-section="2"></div>
     </div>
-</div>
 
-<script>
-    function copyToClipboard() {
-        const urlInput = document.getElementById('shortUrl');
-        urlInput.select();
-        document.execCommand('copy');
+    <!-- Section 1: Main URL Shortener -->
+    <section class="section section-1" id="section1">
+        <div class="content">
+            <div class="header fade-in">
+                <h1 class="title">
+                    <span class="rocket">🚀</span>
+                    Advanced URL Shortener
+                </h1>
+                <p class="subtitle">Create smart, secure, and trackable short links</p>
+            </div>
+            
+            <div class="url-form slide-in-left">
+                <div class="input-group">
+                    <input type="url" class="url-input" placeholder="https://example.com/very/long/url" required>
+                </div>
+                
+                <div class="input-row">
+                    <input type="text" class="alias-input" placeholder="my-custom-link">
+                    <input type="text" class="desc-input" placeholder="What is this link for?">
+                </div>
+                
+                <div class="advanced-options">
+                    <div class="options-header" onclick="toggleAdvanced()">
+                        <span>🔧 Advanced Options</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="options-content">
+                        <div class="input-row">
+                            <input type="password" class="password-input" placeholder="🔐 Password">
+                            <input type="number" class="days-input" placeholder="📅 Expire in days" min="1" max="365">
+                        </div>
+                        <div class="input-row">
+                            <input type="number" class="clicks-input" placeholder="👆 Max clicks limit" min="1">
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="create-btn" onclick="createLink()">
+                    ✨ CREATE SMART LINK
+                </button>
+            </div>
+        </div>
         
-        const button = event.target.closest('button');
-        const originalHTML = button.innerHTML;
-        button.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
-        button.classList.remove('btn-outline-secondary');
-        button.classList.add('btn-success');
-        
-        setTimeout(() => {
-            button.innerHTML = originalHTML;
-            button.classList.remove('btn-success');
-            button.classList.add('btn-outline-secondary');
-        }, 2000);
-    }
+        <div class="scroll-indicator">
+            <div style="font-size: 1.5rem;">⬇</div>
+            <div style="font-size: 0.9rem; margin-top: 0.5rem;">Scroll for more</div>
+        </div>
+    </section>
 
-    function togglePassword() {
-        const passwordInput = document.getElementById('password');
-        const passwordIcon = document.getElementById('passwordIcon');
+    <!-- Section 2: Bulk Shortening -->
+    <section class="section section-2" id="section2">
+        <div class="content">
+            <div class="bulk-section scale-in">
+                <div class="bulk-icon">📊</div>
+                <h2 class="bulk-title">Bulk Shortening</h2>
+                <p class="bulk-desc">Shorten multiple URLs at once</p>
+                <button class="bulk-btn" onclick="openBulkTool()">Try Bulk Tool</button>
+            </div>
+        </div>
         
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            passwordIcon.classList.remove('fa-eye');
-            passwordIcon.classList.add('fa-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            passwordIcon.classList.remove('fa-eye-slash');
-            passwordIcon.classList.add('fa-eye');
+        <div class="scroll-indicator">
+            <div style="font-size: 1.5rem;">⬇</div>
+            <div style="font-size: 0.9rem; margin-top: 0.5rem;">More features below</div>
+        </div>
+    </section>
+
+    <!-- Section 3: Features -->
+    <section class="section section-3" id="section3">
+        <div class="content">
+            <div class="header fade-in">
+                <h2 class="title" style="font-size: 2.5rem;">Powerful Features</h2>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card slide-in-left">
+                    <div class="feature-icon">🔐</div>
+                    <h3 class="feature-title">Password Protection</h3>
+                    <p class="feature-desc">Secure your links with password protection to control who can access your content.</p>
+                </div>
+                
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">⏰</div>
+                    <h3 class="feature-title">Smart Expiration</h3>
+                    <p class="feature-desc">Set automatic expiration by days or click limits to enhance security and control access.</p>
+                </div>
+                
+                <div class="feature-card slide-in-right">
+                    <div class="feature-icon">📈</div>
+                    <h3 class="feature-title">Advanced Analytics</h3>
+                    <p class="feature-desc">Track clicks, geographic data, device info, and user behavior with detailed analytics dashboard.</p>
+                </div>
+                
+                <div class="feature-card slide-in-left">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">Click Limits</h3>
+                    <p class="feature-desc">Set maximum click limits for your links to prevent overuse and manage capacity effectively.</p>
+                </div>
+                
+                <div class="feature-card slide-in-right">
+                    <div class="feature-icon">🛡️</div>
+                    <h3 class="feature-title">Security First</h3>
+                    <p class="feature-desc">Enterprise-grade security with encryption, fraud detection, and comprehensive access controls.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Store shortened URLs in memory for demo
+        const shortenedUrls = {};
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all animated elements
+        document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right, .scale-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Navigation dots functionality
+        const sections = document.querySelectorAll('.section');
+        const dots = document.querySelectorAll('.dot');
+
+        // Section observer for navigation
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const index = Array.from(sections).indexOf(entry.target);
+                    updateActiveDot(index);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        sections.forEach(section => {
+            sectionObserver.observe(section);
+        });
+
+        function updateActiveDot(activeIndex) {
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === activeIndex);
+            });
         }
-    }
 
-    // Add some interactive effects
-    document.querySelectorAll('.form-control').forEach(input => {
-        input.addEventListener('focus', function() {
-            this.parentElement.style.transform = 'translateY(-2px)';
-            this.parentElement.style.transition = 'transform 0.3s ease';
+        // Dot click navigation
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                sections[index].scrollIntoView({ behavior: 'smooth' });
+            });
         });
-        
-        input.addEventListener('blur', function() {
-            this.parentElement.style.transform = 'translateY(0)';
-        });
-    });
 
-    // Smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+        // Functions for interactivity
+        function toggleAdvanced() {
+            const advancedOptions = document.querySelector('.advanced-options');
+            advancedOptions.classList.toggle('open');
+        }
+
+        function createLink() {
+            const urlInput = document.querySelector('.url-input');
+            const aliasInput = document.querySelector('.alias-input');
+            const descInput = document.querySelector('.desc-input');
+            const passwordInput = document.querySelector('.password-input');
+            const daysInput = document.querySelector('.days-input');
+            const clicksInput = document.querySelector('.clicks-input');
+            
+            if (!urlInput.value) {
+                alert('Please enter a URL to shorten');
+                return;
+            }
+            
+            // Create a unique short ID
+            const shortId = aliasInput.value || generateRandomString();
+            
+            // Store the URL mapping for demo purposes
+            shortenedUrls[shortId] = {
+                originalUrl: urlInput.value,
+                description: descInput.value,
+                password: passwordInput.value,
+                expirationDays: daysInput.value,
+                maxClicks: clicksInput.value,
+                clickCount: 0,
+                createdAt: new Date()
+            };
+            
+            // Build options summary
+            let optionsSummary = [];
+            if (passwordInput.value) optionsSummary.push('🔐 Password Protected');
+            if (daysInput.value) optionsSummary.push(`📅 Expires in ${daysInput.value} days`);
+            if (clicksInput.value) optionsSummary.push(`👆 Max ${clicksInput.value} clicks`);
+            
+           // Create the short URL
+const shortUrl = `https://short.ly/${shortId}`;
+
+// Create result display
+const resultDiv = document.createElement('div');
+resultDiv.style.cssText = `
+    background: rgba(255,255,255,0.2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+    animation: slideIn 0.5s ease-out;
+`;
+
+resultDiv.innerHTML = `
+    <div style="margin-bottom: 1rem;">
+        <p style="margin-bottom: 0.5rem; opacity: 0.8; font-weight: 600;">✅ Your Smart Link Created!</p>
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 1rem;">
+            <input type="text" value="${shortUrl}" readonly 
+                   style="flex: 1; padding: 0.8rem; border: none; border-radius: 8px; background: rgba(255,255,255,0.9); color: #333; font-weight: 500;">
+            <button onclick="copyToClipboard('${shortUrl}')" 
+                    style="padding: 0.8rem 1.2rem; background: #ff6b6b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;"
+                    onmouseover="this.style.background='#ee5a24'; this.style.transform='translateY(-2px)'"
+                    onmouseout="this.style.background='#ff6b6b'; this.style.transform='translateY(0)'">
+                📋 Copy
+            </button>
+            <button onclick="testRedirect('${shortId}')" class="test-btn">
+                🔗 Test
+            </button>
+        </div>
+                    <div style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 0.8rem; margin-bottom: 1rem; font-size: 0.9rem;">
+                        <strong>Short Code:</strong> ${shortId}
+                        ${descInput.value ? `<br><strong>Description:</strong> ${descInput.value}` : ''}
+                    </div>
+                    ${optionsSummary.length > 0 ? `
+                        <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 1rem; border: 1px solid rgba(255,255,255,0.2);">
+                            <p style="margin-bottom: 0.5rem; font-weight: 600; opacity: 0.9;">🔧 Active Features:</p>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                ${optionsSummary.map(option => `<span style="background: rgba(255,255,255,0.2); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.3);">${option}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            // Add CSS for animation if not already added
+            if (!document.getElementById('result-animations')) {
+                const style = document.createElement('style');
+                style.id = 'result-animations';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+                        to { opacity: 1; transform: translateY(0) scale(1); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Remove any existing results
+            const existingResult = document.querySelector('.url-form .result');
+            if (existingResult) {
+                existingResult.remove();
+            }
+            
+            resultDiv.className = 'result';
+            document.querySelector('.url-form').appendChild(resultDiv);
+            
+            // Clear inputs
+            urlInput.value = '';
+            aliasInput.value = '';
+            descInput.value = '';
+            passwordInput.value = '';
+            daysInput.value = '';
+            clicksInput.value = '';
+            
+            // Close advanced options
+            document.querySelector('.advanced-options').classList.remove('open');
+        }
+
+        function testRedirect(shortId) {
+            const urlData = shortenedUrls[shortId];
+            if (!urlData) {
+                alert('❌ Short URL not found!');
+                return;
+            }
+
+            // Check if password protected
+            if (urlData.password) {
+                const enteredPassword = prompt('🔐 This link is password protected. Enter password:');
+                if (enteredPassword !== urlData.password) {
+                    alert('❌ Incorrect password!');
+                    return;
+                }
+            }
+
+            // Check expiration
+            if (urlData.expirationDays) {
+                const expirationDate = new Date(urlData.createdAt);
+                expirationDate.setDate(expirationDate.getDate() + parseInt(urlData.expirationDays));
+                if (new Date() > expirationDate) {
+                    alert('❌ This link has expired!');
+                    return;
+                }
+            }
+
+            // Check click limit
+            if (urlData.maxClicks && urlData.clickCount >= parseInt(urlData.maxClicks)) {
+                alert('❌ This link has reached its maximum click limit!');
+                return;
+            }
+
+            // Increment click count
+            urlData.clickCount++;
+
+            // Show success message and redirect
+            alert(`✅ Redirecting to: ${urlData.originalUrl}\n\n📊 Click #${urlData.clickCount}${urlData.maxClicks ? ` of ${urlData.maxClicks}` : ''}`);
+            
+            // Open the URL in a new tab for demo purposes
+            window.open(urlData.originalUrl, '_blank');
+        }
+
+        function openBulkTool() {
+            alert('📊 Bulk shortening tool would open here!\n\nThis feature would allow you to:\n• Upload CSV files with multiple URLs\n• Set batch configurations\n• Download results as CSV\n• Apply advanced options to all URLs');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Show a nice feedback
+                const feedback = document.createElement('div');
+                feedback.textContent = '✅ Copied to clipboard!';
+                feedback.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #4CAF50;
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    z-index: 10000;
+                    font-weight: 600;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                    animation: slideInRight 0.3s ease-out;
+                `;
+                
+                // Add animation
+                if (!document.getElementById('feedback-animations')) {
+                    const style = document.createElement('style');
+                    style.id = 'feedback-animations';
+                    style.textContent = `
+                        @keyframes slideInRight {
+                            from { transform: translateX(100%); opacity: 0; }
+                            to { transform: translateX(0); opacity: 1; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                document.body.appendChild(feedback);
+                setTimeout(() => {
+                    feedback.remove();
+                }, 3000);
+            }).catch(() => {
+                alert('Failed to copy to clipboard');
+            });
+        }
+
+        function generateRandomString() {
+            return Math.random().toString(36).substring(2, 8);
+        }
+
+        // Handle URL hash navigation for demo redirects
+        window.addEventListener('load', function() {
+            const hash = window.location.hash.substring(1);
+            if (hash && shortenedUrls[hash]) {
+                testRedirect(hash);
             }
         });
-    });
-</script>
-{% endblock %}
+
+        window.addEventListener('hashchange', function() {
+            const hash = window.location.hash.substring(1);
+            if (hash && shortenedUrls[hash]) {
+                testRedirect(hash);
+            }
+        });
+
+        // Smooth scroll behavior for better UX
+        document.addEventListener('wheel', (e) => {
+            if (Math.abs(e.deltaY) > 50) {
+                e.preventDefault();
+                const currentSection = Math.round(window.scrollY / window.innerHeight);
+                const nextSection = e.deltaY > 0 ? currentSection + 1 : currentSection - 1;
+                
+                if (nextSection >= 0 && nextSection < sections.length) {
+                    sections[nextSection].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }, { passive: false });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                e.preventDefault();
+                const currentSection = Math.round(window.scrollY / window.innerHeight);
+                if (currentSection < sections.length - 1) {
+                    sections[currentSection + 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                const currentSection = Math.round(window.scrollY / window.innerHeight);
+                if (currentSection > 0) {
+                    sections[currentSection - 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

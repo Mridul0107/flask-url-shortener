@@ -10,11 +10,6 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-      AOS.init();
-    </script>
-    <div data-aos="fade-up"> ... </div>
 
 <body>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -43,25 +38,27 @@
         {% block content %}{% endblock %}
     </div>
 
+    <!-- Social sharing section - only show if url variable exists -->
+    {% if url is defined %}
+    <div class="container mt-4">
+        <div class="social-sharing mt-3">
+            <h5>Share this link:</h5>
+            <a href="https://twitter.com/intent/tweet?url={{ request.host_url }}{{ url.short_code }}&text=Check out this link!" 
+               target="_blank" class="btn btn-primary btn-sm">
+                🐦 Twitter
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.host_url }}{{ url.short_code }}" 
+               target="_blank" class="btn btn-primary btn-sm">
+                📘 Facebook
+            </a>
+            <a href="https://wa.me/?text={{ request.host_url }}{{ url.short_code }}" 
+               target="_blank" class="btn btn-success btn-sm">
+                📱 WhatsApp
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<i class="fas fa-link"></i> Short URL
-<i class="fa-solid fa-chart-line"></i> Stats
-
-<!-- Add to stats.html -->
-<div class="social-sharing mt-3">
-    <h5>Share this link:</h5>
-    <a href="https://twitter.com/intent/tweet?url={{ request.host_url }}{{ url.short_code }}&text=Check out this link!" 
-       target="_blank" class="btn btn-primary btn-sm">
-        🐦 Twitter
-    </a>
-    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.host_url }}{{ url.short_code }}" 
-       target="_blank" class="btn btn-primary btn-sm">
-        📘 Facebook
-    </a>
-    <a href="https://wa.me/?text={{ request.host_url }}{{ url.short_code }}" 
-       target="_blank" class="btn btn-success btn-sm">
-        📱 WhatsApp
-    </a>
-</div>
