@@ -7,15 +7,90 @@
     <div class="col-md-6">
         <div class="card shadow text-center">
             <div class="card-body">
-                <h2>⚠️ Link Not Available</h2>
-                <p class="text-muted">{{ message }}</p>
-                <a href="{{ url_for('index') }}" class="btn btn-primary">Create New Link</a>
+                <div class="error-icon mb-3">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning"></i>
+                </div>
+                <h2 class="mb-3">Link Not Available</h2>
+                <p class="text-muted mb-4">{{ message }}</p>
+                
+                <!-- Additional error details if available -->
+                {% if error_type %}
+                <div class="alert alert-light mb-3">
+                    <small class="text-muted">
+                        {% if error_type == 'expired' %}
+                            <i class="fas fa-clock"></i> This link has expired
+                        {% elif error_type == 'limit_reached' %}
+                            <i class="fas fa-ban"></i> Click limit reached
+                        {% elif error_type == 'not_found' %}
+                            <i class="fas fa-search"></i> Link not found
+                        {% elif error_type == 'inactive' %}
+                            <i class="fas fa-pause"></i> Link is inactive
+                        {% elif error_type == 'password_required' %}
+                            <i class="fas fa-lock"></i> Password required
+                        {% else %}
+                            <i class="fas fa-info-circle"></i> {{ error_type }}
+                        {% endif %}
+                    </small>
+                </div>
+                {% endif %}
+                
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create New Link
+                    </a>
+                    <a href="{{ url_for('dashboard') if current_user.is_authenticated else '#' }}" 
+                       class="btn btn-outline-secondary">
+                        <i class="fas fa-dashboard"></i> Go to Dashboard
+                    </a>
+                </div>
+                
+                <!-- Help section -->
+                <div class="mt-4">
+                    <small class="text-muted">
+                        Need help? <a href="#" class="text-decoration-none">Contact Support</a>
+                    </small>
+                </div>
             </div>
         </div>
     </div>
-<<<<<<< HEAD
-    {% endblock %}
-=======
 </div>
+
+<!-- Custom styles for better error page -->
+<style>
+.error-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+}
+
+.alert {
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+</style>
 {% endblock %}
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7

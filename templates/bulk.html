@@ -1,167 +1,816 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk URL Shortener - QuickLink</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% block title %}Bulk URL Shortener{% endblock %}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
 
-{% block content %}
-<div class="row justify-content-center py-5">
-    <div class="col-lg-10" data-aos="fade-up">
-        <div class="card shadow border-0">
-            <div class="card-body p-5">
-                <h2 class="mb-3">📊 Bulk URL Shortener</h2>
-                <p class="text-muted">Shorten multiple URLs at once. Paste one per line (up to 50).</p>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-section, .options-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .url-textarea {
+            width: 100%;
+            height: 200px;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .url-textarea:focus {
+            outline: none;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+
+        .url-count {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .file-upload {
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .file-upload:hover {
+            border-color: rgba(255,255,255,0.6);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .file-upload input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: #ff6b6b;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
+        .results-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: none;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .results-table th {
+            background: rgba(255,255,255,0.1);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .results-table td {
+            font-size: 0.9rem;
+        }
+
+        .short-url {
+            font-family: 'Courier New', monospace;
+            background: rgba(255,255,255,0.1);
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .short-url:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .status-success {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .status-error {
+            color: #f44336;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-icon">🔗</span>
+                <h1 class="title">Bulk URL Shortener</h1>
+            </div>
+            <p class="subtitle">Shorten multiple URLs at once with advanced options</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <h2 class="section-title">📝 URLs Input</h2>
+                <textarea 
+                    class="url-textarea" 
+                    id="urlTextarea"
+                    placeholder="Enter URLs (one per line):&#13;&#10;https://example.com/page1&#13;&#10;https://example.com/page2&#13;&#10;https://example.com/page3"
+                    oninput="updateUrlCount()"
+                ></textarea>
+                <div class="url-count" id="urlCount">0 URLs detected</div>
                 
-<<<<<<< HEAD
-=======
-                <!-- Bulk URL Form -->
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                <form method="POST">
-                    <div class="mb-4">
-                        <label for="urls" class="form-label fw-semibold">URLs to shorten:</label>
-                        <textarea class="form-control shadow-sm" id="urls" name="urls" rows="10" 
-                                  placeholder="https://example.com/one&#10;https://example.com/two" required></textarea>
-                        <div class="form-text">Separate each URL by line</div>
+                <div class="file-upload" onclick="document.getElementById('csvFile').click()">
+                    <input type="file" id="csvFile" accept=".csv,.txt" onchange="handleFileUpload(event)">
+                    <div>📁 Or upload CSV/TXT file</div>
+                    <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem;">
+                        Maximum 50 URLs at once
                     </div>
-                    <button type="submit" class="btn btn-primary btn-lg w-100">
-                        🔗 Shorten All URLs
-                    </button>
-                </form>
+                </div>
+            </div>
 
-<<<<<<< HEAD
-=======
-                <!-- Results -->
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                {% if results %}
-                <hr class="my-5">
-                <h4 class="mb-4">✅ Results</h4>
-                <div class="table-responsive">
-                    <table class="table table-hover table-bordered align-middle">
-                        <thead class="table-light">
-                            <tr>
-<<<<<<< HEAD
-                                <th>Original URL</th>
-                                <th>Shortened</th>
-                                <th>Status</th>
-                                <th>Action</th>
-=======
-                                <th scope="col">Original URL</th>
-                                <th scope="col">Shortened</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Action</th>
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for result in results %}
-                            <tr>
-                                <td class="text-break" style="max-width: 300px;">{{ result.original }}</td>
-                                <td>
-<<<<<<< HEAD
-                                    {% if result.status == 'success' and result.shortened %}
-=======
-                                    {% if result.status == 'success' %}
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                                        <input type="text" class="form-control form-control-sm text-primary" 
-                                               value="{{ result.shortened }}" readonly onclick="this.select()">
-                                    {% else %}
-                                        <span class="text-danger">—</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if result.status == 'success' %}
-                                        <span class="badge bg-success">Success</span>
-                                    {% else %}
-                                        <span class="badge bg-danger">Failed</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-<<<<<<< HEAD
-                                    {% if result.status == 'success' and result.shortened %}
-                                        <a href="{{ result.shortened }}" target="_blank" class="btn btn-outline-primary btn-sm">Visit</a>
-=======
-                                    {% if result.status == 'success' %}
-                                        <a href="{{ result.shortened }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                            Visit
-                                        </a>
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="options-section">
+                <h2 class="section-title">⚙️ Configuration</h2>
+                
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" id="category">
+                        <option value="">Select Category (Optional)</option>
+                        <option value="marketing">📢 Marketing</option>
+                        <option value="social">📱 Social Media</option>
+                        <option value="business">💼 Business</option>
+                        <option value="personal">👤 Personal</option>
+                        <option value="other">🔧 Other</option>
+                    </select>
                 </div>
 
-<<<<<<< HEAD
-=======
-                <!-- Download Button -->
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
-                <div class="text-end mt-4">
-                    <button class="btn btn-outline-dark" onclick="downloadResults()">
-                        📥 Download CSV
-                    </button>
+                <div class="form-group">
+                    <label class="form-label">Expiration Date</label>
+                    <input type="date" class="form-input" id="expirationDate">
                 </div>
-                {% endif %}
+
+                <div class="form-group">
+                    <label class="form-label">Click Limit (per URL)</label>
+                    <input type="number" class="form-input" id="clickLimit" placeholder="Leave empty for unlimited">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <input type="text" class="form-input" id="description" placeholder="Optional description for all URLs">
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox" id="customAliases">
+                    <label for="customAliases">Generate custom aliases</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" class="checkbox" id="enableTracking">
+                    <label for="enableTracking">Enable advanced tracking</label>
+                </div>
             </div>
         </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="processUrls()" id="processBtn">
+                ✨ Create Short URLs
+            </button>
+            <button class="btn btn-secondary" onclick="clearAll()">
+                🗑️ Clear All
+            </button>
+        </div>
+
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2 class="section-title">📊 Results</h2>
+                <div>
+                    <button class="btn btn-secondary" onclick="downloadResults()" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                        💾 Download CSV
+                    </button>
+                    <button class="btn btn-secondary" onclick="copyAllResults()" style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-left: 0.5rem;">
+                        📋 Copy All
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalProcessed">0</div>
+                    <div class="stat-label">Total Processed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="successCount">0</div>
+                    <div class="stat-label">Successful</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="errorCount">0</div>
+                    <div class="stat-label">Errors</div>
+                </div>
+            </div>
+
+            <table class="results-table" id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>Original URL</th>
+                        <th>Short URL</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody">
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
-<<<<<<< HEAD
-<script id="bulk-data" type="application/json">
-  {{ results | tojson if results else "[]" }}
-</script>
+    <script>
+        // In-memory storage for results
+        let results = [];
+        let processedUrls = {};
 
-<script>
-  const results = JSON.parse(document.getElementById('bulk-data').textContent || "[]");
+        function updateUrlCount() {
+            const textarea = document.getElementById('urlTextarea');
+            const urls = textarea.value.split('\n').filter(url => url.trim() && isValidUrl(url.trim()));
+            document.getElementById('urlCount').textContent = `${urls.length} URLs detected`;
+        }
 
-  function downloadResults() {
-      let csv = 'Original URL,Shortened URL,Status\n';
-      results.forEach(result => {
-          csv += `"${result.original}","${result.shortened || ''}","${result.status}"\n`;
-      });
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
 
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', 'shortened_urls.csv');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-  }
-</script>
-{% endblock %}
-=======
-<!-- CSV Download Script -->
-<<script>
-const results = [
-    {% for result in results %}
-    {
-        original: "{{ result.original | escape }}",
-        shortened: "{{ result.shortened | default('') | escape }}",
-        status: "{{ result.status }}"
-    }{% if not loop.last %},{% endif %}
-    {% endfor %}
-];
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-function downloadResults() {
-    let csv = 'Original URL,Shortened URL,Status\n';
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const urls = content.split('\n').filter(line => line.trim());
+                
+                document.getElementById('urlTextarea').value = urls.join('\n');
+                updateUrlCount();
+                
+                showNotification(`📁 Loaded ${urls.length} URLs from file`, 'success');
+            };
+            reader.readAsText(file);
+        }
 
-    results.forEach(result => {
-        csv += `"${result.original}","${result.shortened}","${result.status}"\n`;
-    });
+        function generateShortCode() {
+            return Math.random().toString(36).substring(2, 8);
+        }
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'shortened_urls.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-}
-</script>
- 
->>>>>>> ea4c1bee01f092866938bd6f134fa94070bbdec7
+        function generateCustomAlias(url) {
+            try {
+                const urlObj = new URL(url);
+                const domain = urlObj.hostname.replace('www.', '');
+                const path = urlObj.pathname.split('/').filter(p => p).join('-');
+                return `${domain.split('.')[0]}${path ? '-' + path.substring(0, 10) : ''}`.toLowerCase();
+            } catch {
+                return generateShortCode();
+            }
+        }
+
+        async function processUrls() {
+            const textarea = document.getElementById('urlTextarea');
+            const urls = textarea.value.split('\n').filter(url => url.trim() && isValidUrl(url.trim()));
+            
+            if (urls.length === 0) {
+                showNotification('❌ Please enter at least one valid URL', 'error');
+                return;
+            }
+
+            if (urls.length > 50) {
+                showNotification('❌ Maximum 50 URLs allowed at once', 'error');
+                return;
+            }
+
+            // Get configuration
+            const category = document.getElementById('category').value;
+            const expirationDate = document.getElementById('expirationDate').value;
+            const clickLimit = document.getElementById('clickLimit').value;
+            const description = document.getElementById('description').value;
+            const customAliases = document.getElementById('customAliases').checked;
+            const enableTracking = document.getElementById('enableTracking').checked;
+
+            // Show progress
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            const processBtn = document.getElementById('processBtn');
+            
+            progressBar.style.display = 'block';
+            processBtn.disabled = true;
+            processBtn.textContent = '⏳ Processing...';
+
+            results = [];
+            let processed = 0;
+            let successful = 0;
+            let errors = 0;
+
+            for (let i = 0; i < urls.length; i++) {
+                const url = urls[i].trim();
+                const progress = ((i + 1) / urls.length) * 100;
+                progressFill.style.width = progress + '%';
+
+                try {
+                    const shortCode = customAliases ? generateCustomAlias(url) : generateShortCode();
+                    const shortUrl = `https://short.ly/${shortCode}`;
+                    
+                    // Store the URL mapping
+                    processedUrls[shortCode] = {
+                        originalUrl: url,
+                        category: category,
+                        description: description,
+                        expirationDate: expirationDate,
+                        clickLimit: clickLimit ? parseInt(clickLimit) : null,
+                        enableTracking: enableTracking,
+                        clickCount: 0,
+                        createdAt: new Date()
+                    };
+
+                    results.push({
+                        originalUrl: url,
+                        shortUrl: shortUrl,
+                        shortCode: shortCode,
+                        status: 'success'
+                    });
+                    successful++;
+                } catch (error) {
+                    results.push({
+                        originalUrl: url,
+                        shortUrl: '',
+                        shortCode: '',
+                        status: 'error',
+                        error: 'Failed to process URL'
+                    });
+                    errors++;
+                }
+                processed++;
+
+                // Add small delay to show progress
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            // Hide progress and reset button
+            progressBar.style.display = 'none';
+            processBtn.disabled = false;
+            processBtn.textContent = '✨ Create Short URLs';
+
+            // Update stats
+            document.getElementById('totalProcessed').textContent = processed;
+            document.getElementById('successCount').textContent = successful;
+            document.getElementById('errorCount').textContent = errors;
+
+            // Show results
+            displayResults();
+            document.getElementById('resultsSection').style.display = 'block';
+
+            showNotification(`✅ Processed ${processed} URLs (${successful} successful, ${errors} errors)`, 'success');
+        }
+
+        function displayResults() {
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = '';
+
+            results.forEach((result, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${result.originalUrl}">
+                        ${result.originalUrl}
+                    </td>
+                    <td>
+                        ${result.status === 'success' ? 
+                            `<span class="short-url" onclick="copyToClipboard('${result.shortUrl}')" title="Click to copy">${result.shortUrl}</span>` : 
+                            '-'
+                        }
+                    </td>
+                    <td>
+                        <span class="status-${result.status}">
+                            ${result.status === 'success' ? '✅ Success' : '❌ Error'}
+                        </span>
+                    </td>
+                    <td>
+                        ${result.status === 'success' ? 
+                            `<button onclick="testUrl('${result.shortCode}')" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 0.3rem 0.6rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">🔗 Test</button>` : 
+                            '-'
+                        }
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function testUrl(shortCode) {
+            const urlData = processedUrls[shortCode];
+            if (!urlData) {
+                showNotification('❌ Short URL not found!', 'error');
+                return;
+            }
+
+            // Check expiration
+            if (urlData.expirationDate) {
+                const expirationDate = new Date(urlData.expirationDate);
+                if (new Date() > expirationDate) {
+                    showNotification('❌ This link has expired!', 'error');
+                    return;
+                }
+            }
+
+            // Check click limit
+            if (urlData.clickLimit && urlData.clickCount >= urlData.clickLimit) {
+                showNotification('❌ This link has reached its maximum click limit!', 'error');
+                return;
+            }
+
+            // Increment click count
+            urlData.clickCount++;
+
+            // Show success message and redirect
+            showNotification(`✅ Redirecting to: ${urlData.originalUrl}\n📊 Click #${urlData.clickCount}${urlData.clickLimit ? ` of ${urlData.clickLimit}` : ''}`, 'success');
+            
+            // Open the URL in a new tab
+            window.open(urlData.originalUrl, '_blank');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('📋 Copied to clipboard!', 'success');
+            }).catch(() => {
+                showNotification('❌ Failed to copy to clipboard', 'error');
+            });
+        }
+
+        function copyAllResults() {
+            const successfulResults = results.filter(r => r.status === 'success');
+            if (successfulResults.length === 0) {
+                showNotification('❌ No successful results to copy', 'error');
+                return;
+            }
+
+            const text = successfulResults.map(r => `${r.originalUrl} → ${r.shortUrl}`).join('\n');
+            copyToClipboard(text);
+        }
+
+        function downloadResults() {
+            if (results.length === 0) {
+                showNotification('❌ No results to download', 'error');
+                return;
+            }
+
+            const csvContent = [
+                ['Original URL', 'Short URL', 'Short Code', 'Status', 'Error'].join(','),
+                ...results.map(r => [
+                    `"${r.originalUrl}"`,
+                    `"${r.shortUrl || ''}"`,
+                    `"${r.shortCode || ''}"`,
+                    r.status,
+                    `"${r.error || ''}"`
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bulk-shortened-urls-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            showNotification('💾 Results downloaded successfully!', 'success');
+        }
+
+        function clearAll() {
+            document.getElementById('urlTextarea').value = '';
+            document.getElementById('category').value = '';
+            document.getElementById('expirationDate').value = '';
+            document.getElementById('clickLimit').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('customAliases').checked = false;
+            document.getElementById('enableTracking').checked = false;
+            document.getElementById('csvFile').value = '';
+            
+            results = [];
+            processedUrls = {};
+            
+            document.getElementById('resultsSection').style.display = 'none';
+            updateUrlCount();
+            
+            showNotification('🗑️ All data cleared', 'success');
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#4CAF50' : '#f44336'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                z-index: 10000;
+                font-weight: 600;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                animation: slideInRight 0.3s ease-out;
+                max-width: 400px;
+                word-wrap: break-word;
+            `;
+            notification.textContent = message;
+            
+            // Add animation CSS if not exists
+            if (!document.getElementById('notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes slideInRight {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        // Initialize
+        updateUrlCount();
+    </script>
+</body>
+</html>
