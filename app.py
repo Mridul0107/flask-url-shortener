@@ -11,7 +11,19 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-this')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///urls.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Add this after your imports and before app configuration
+import os
 
+# Force development configuration
+if os.environ.get('FLASK_ENV') == 'development' or not os.environ.get('CUSTOM_DOMAIN'):
+    CUSTOM_DOMAIN = 'localhost:5000'
+    USE_HTTPS = False
+else:
+    # Configuration for custom domain (production)
+    CUSTOM_DOMAIN = os.environ.get('CUSTOM_DOMAIN', 'localhost:5000')
+    USE_HTTPS = os.environ.get('USE_HTTPS', 'false').lower() == 'true'
+
+PROTOCOL = 'https' if USE_HTTPS else 'http'
 # Configuration for custom domain
 CUSTOM_DOMAIN = os.environ.get('CUSTOM_DOMAIN', 'localhost:5000')
 USE_HTTPS = os.environ.get('USE_HTTPS', 'false').lower() == 'true'
